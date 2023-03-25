@@ -2,7 +2,7 @@
 
 Trying to learn C. A card game seemed like a good excercise to do so.
 
-Plans:
+## Plans:
 
 - [x] set up project
 - [ ] establish rudimentary gameplay  
