@@ -9,7 +9,7 @@
 #define COLOR_SIZE 13
 #define RAND_M ((1U << 31) - 1)
 #define NUM_PLAYER 4
-#define HAND_SIZE 2
+#define HAND_SIZE 7
 #define HAND_CAP HAND_SIZE*HAND_SIZE
 #define MAX_PLAYERS 8
 #define FLAG_CAP 8 
@@ -375,12 +375,16 @@ Discards* init_discards() {
 void draw_to_discard(Table* table) {
     printf("[GAME] drawing initial discard\n");
     int top = table->discarded->len;
-    table->discarded->cards[top] = &deck[table->top_of_deck]; 
+    Card* card = &deck[table->top_of_deck];
+    do {
+        table->discarded->len++;
+        table->top_of_deck++;
+        card = &deck[table->top_of_deck];
+    } while (card->color == BLACK); 
+    table->discarded->cards[top] = card; 
     table->current_color = deck[table->top_of_deck].color;
     table->current_value = deck[table->top_of_deck].value;
     deck[table->top_of_deck].location = DISCARD;
-    table->discarded->len++;
-    table->top_of_deck++;
 }
 void print_discard(Table* table) {
     printf("\tDiscarded: \n");
@@ -839,7 +843,6 @@ int player_has_won(Table *table) {
 
 int main(int argc, char **argv) {
     seed(time(NULL));
-    //TODO don't allow initial discad if WILD or WILD DRAW4
     //TODO bug -> boundary error when draw card 
     //TODO before start determine who starts by drawing cards 
     //TODO check if deck is exhausted
