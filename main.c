@@ -474,6 +474,15 @@ void set_current_player(Table* table) {
 }
 
 Card* get_next_card(Table* table) {
+    if (DEBUG == 1) {
+        printf("[DEGUB] cards in game %d\n", table->top_of_deck);   
+    }
+    
+    if (table->top_of_deck == DECK_SIZE) {
+        printf("Reshuffling of discard stack after exhausted new card stack not implemnted yet.");
+        exit(0);
+    }
+
     Card* card = &deck[table->top_of_deck];
     table->top_of_deck++;
     return card;
@@ -615,6 +624,9 @@ void bot_best_next_card(Table* table, int player_id, int no_draw) {
         }
     }
     
+    //TODO -> if choose color card, don't discard also a choose color
+    //card if there are more then one option
+
     Hand* hand = table->current_hand;
     Card* possible_cards[max_len];
     //possible_cards = (Card*)calloc(max_len, sizeof(Card*));
@@ -697,9 +709,9 @@ void bot_best_next_color(Table* table) {
             max = clrs[i];
             next_clr = i;
         }
-        printf("\t%s occurs %d times\n", print_color(i), clrs[i]);
     }
-    printf("would choose %s", print_color(next_clr));
+    printf("Player %d chose %s\n", print_color(next_clr));
+    table->current_color = next_clr;
 }
 
 
@@ -843,10 +855,7 @@ int player_has_won(Table *table) {
 
 int main(int argc, char **argv) {
     seed(time(NULL));
-    //TODO bug -> boundary error when draw card 
     //TODO before start determine who starts by drawing cards 
-    //TODO check if deck is exhausted
-    //TODO reshuffle when stack is exhausted
     int num_players = DEFAULT_PLAYERS;
     int num_active = DEFAULT_ACTIVE;
     char* PLAYER = "player";
