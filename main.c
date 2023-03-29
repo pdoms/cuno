@@ -561,7 +561,6 @@ ACTION determine_action(Table* table) {
     } else {
         return NEXT_PLAYER;
     }
-    print_card(card, 0); 
 }
 
 int hand_has_zero(Hand* hand) {
@@ -598,14 +597,14 @@ int has_card_value(Hand *hand, int value) {
 }
 
 int check_if_can_stack(Table *table) {
-    Card *card = table->discarded->cards[table->discarded->len];
+    Card *card = table->discarded->cards[table->discarded->len-1];
     Hand *hand = table->current_hand;
     int check = has_card_value(hand, card->value);
     return check;
 
 }
 
-void bot_best_next_card(Table* table, int player_id) {
+void bot_best_next_card(Table* table, int player_id, int no_draw) {
     int max_len = table->current_hand->num_cards;
     //strategy 1 -> check if discard is zero and hand has zero
     if (table->current_value == 0) {
@@ -650,7 +649,7 @@ void bot_best_next_card(Table* table, int player_id) {
         
     }
 
-    if (size == 0) {
+    if (size == 0 && no_draw == 0) {
         printf("Will draw\n");
         draw_to_player(table, table->current_player);
         return;
@@ -878,6 +877,7 @@ int main(int argc, char **argv) {
     COLOR clr;
     int init = 1;
     int skip_play = 0;
+    int comes_from_draw = 0;
 
     while (run) {
         print_delim();
@@ -931,6 +931,7 @@ int main(int argc, char **argv) {
                     draw_to_player(&table, table.current_player);
                     draw_to_player(&table, table.current_player);
                 }   
+                comes_from_draw = 1;
                 break; 
             case NEXT_DRAW4:
                 if (table.current_hand->is_active == 1) {
@@ -948,6 +949,7 @@ int main(int argc, char **argv) {
                     draw_to_player(&table, table.current_player);
                     draw_to_player(&table, table.current_player);
                 }   
+                comes_from_draw = 1;
                 break; 
             default:
                 if (init == 1) {
@@ -966,7 +968,12 @@ int main(int argc, char **argv) {
             set_current_hand(&table); 
             if (table.current_hand->is_active == 1) {
                 print_player_hand(&table, 1);
-                printf("\t#0 -> draw card\n");
+                if (comes_from_draw == 1) {
+                    printf("\t#0 -> fold\n");
+                    comes_from_draw = 0;
+                } else {
+                    printf("\t#0 -> draw card\n");
+                }
                 printf("Which card do you want to play? ");
                 scanf("%d", &user_play_action);
                 if (user_play_action == 0) {
@@ -1004,7 +1011,10 @@ int main(int argc, char **argv) {
                 next = scanf("%d", &next);
             } else {
                 printf("Playing %d's hand.\n", table.current_player);
-                bot_best_next_card(&table, table.current_player);
+                bot_best_next_card(&table, table.current_player, comes_from_draw);
+                if (comes_from_draw == 1) {
+                    comes_from_draw = 0;
+                }
                 print_delim();
                 print_discard(&table);
                 printf("Next player? [0/1] ");
