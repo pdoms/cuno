@@ -375,16 +375,17 @@ Discards* init_discards() {
 void draw_to_discard(Table* table) {
     printf("[GAME] drawing initial discard\n");
     int top = table->discarded->len;
-    Card* card = &deck[table->top_of_deck];
-    do {
+    while (deck[table->top_of_deck].color == BLACK) {
+        table->discarded->cards[table->discarded->len] = &deck[table->top_of_deck];
         table->discarded->len++;
         table->top_of_deck++;
-        card = &deck[table->top_of_deck];
-    } while (card->color == BLACK); 
-    table->discarded->cards[top] = card; 
+    }
+    table->discarded->cards[table->discarded->len] = &deck[table->top_of_deck];
     table->current_color = deck[table->top_of_deck].color;
     table->current_value = deck[table->top_of_deck].value;
     deck[table->top_of_deck].location = DISCARD;
+    table->discarded->len++;
+    table->top_of_deck++;
 }
 void print_discard(Table* table) {
     printf("\tDiscarded: \n");
@@ -906,7 +907,9 @@ int main(int argc, char **argv) {
                 set_current_player(&table);
                 break;
             case NEXT_DRAW2:
-                set_current_player(&table);
+                if (init == 0) {
+                    set_current_player(&table);
+                }
                 if (table.current_hand->is_active == 1) {
                     if (check_if_can_stack(&table) < table.current_hand->num_cards) {
                         print_player_hand(&table, 0);
