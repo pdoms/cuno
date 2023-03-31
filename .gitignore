@@ -1,2 +1,5 @@
 cuno
 main
+src/*.o
+cuno.o
+
