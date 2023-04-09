@@ -1,4 +1,4 @@
-# Uni in C - merely an excercise
+# Uno in C - merely an excercise
 
 Trying to learn C. A card game seemed like a good excercise to do so.
 
